@@ -3,12 +3,11 @@
 from __future__ import division
 from sys import byteorder
 from array import array
-from struct import pack
 from tkinter import *
+from tkinter import messagebox
 from tkinter.ttk import *
 import os
 from python_speech_features import mfcc
-from scipy.fftpack import fft
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import numpy
@@ -40,6 +39,8 @@ class SpeechRecognition():
         self.root = Tk()
         self.var = IntVar()
         self.var.set(1)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
 
     def main(self):
         self.root.title = 'Speech Recognition'
@@ -72,6 +73,7 @@ class SpeechRecognition():
         self.root.mainloop()
 
     def start(self):
+        self.log.insert(END, 'Starting...\n')
         if self.var.get() == 1:
             # Record from mic & analyze
             self.FREQUENCY, signal = self.record_from_mic()
@@ -80,25 +82,27 @@ class SpeechRecognition():
             # Read from file & analyze
             selection = self.existing_audio_files.curselection()
             self.FREQUENCY, signal = wavfile.read(os.path.join(self.DATA_PATH, self.existing_audio_files.get(selection[0])))
+            self.log.insert(END, 'Reading existing audio file...\n')
             self.analyze(signal)
 
     def analyze(self, signal):
+        self.log.insert(END, '\nAnalyzing audio signal...\n')
         signal = signal / max(abs(signal))  # scale for plotting and calculations
         assert min(signal) >= -1 and max(signal) <= 1
 
         # Prints some stats
-        self.log.insert(END, 'frequency ==> {} Hz\n'.format(self.FREQUENCY))  # sampling rate
-        self.log.insert(END, 'length of signal  ==> {} samples\n'.format(len(signal)))
-        self.log.insert(END, 'signal  ==> {}\n'.format(signal))
+        self.log.insert(END, 'Frequency ==> {} Hz\n'.format(self.FREQUENCY))  # sampling rate
+        self.log.insert(END, 'Length of signal  ==> {} samples\n'.format(len(signal)))
+        self.log.insert(END, 'Signal  ==> {}\n'.format(signal))
 
         sampsPerMilli = int(self.FREQUENCY / 1000)
         millisPerFrame = 20
         sampsPerFrame = sampsPerMilli * millisPerFrame
         nFrames = int(len(signal) / sampsPerFrame)  # number of non-overlapping _full_ frames
 
-        self.log.insert(END, 'samples/millisecond  ==> {}\n'.format(sampsPerMilli))
-        self.log.insert(END, 'samples/[%dms]frame  ==> % {} {}\n'.format(millisPerFrame, sampsPerFrame))
-        self.log.insert(END, 'number of frames     ==> {}\n'.format(nFrames))
+        self.log.insert(END, 'Samples/millisecond  ==> {}\n'.format(sampsPerMilli))
+        self.log.insert(END, 'Samples/[%dms]frame  ==> % {} {}\n'.format(millisPerFrame, sampsPerFrame))
+        self.log.insert(END, 'Number of frames     ==> {}\n'.format(nFrames))
 
         # Raw signal
         plt.figure()
@@ -108,6 +112,7 @@ class SpeechRecognition():
         plt.autoscale(tight='both')
         plt.savefig(self.OUTPUT_RAW_SIGNAL)
 
+        '''
         # Spectrogram
         N = len(signal)  # total number of signals
         curPos = 0
@@ -147,6 +152,7 @@ class SpeechRecognition():
         imgplot.set_cmap('jet')
         plt.colorbar()
         plt.savefig(self.OUTPUT_SPECTROGRAM)
+        '''
 
         # Short-time energy
         STEs = []
@@ -160,7 +166,7 @@ class SpeechRecognition():
 
         plt.figure()
         plt.plot(STEs)
-        plt.title('Short-Time Energy')
+        plt.title('Energy')
         plt.ylabel('ENERGY')
         plt.xlabel('FRAME')
         plt.autoscale(tight='both')
@@ -183,7 +189,7 @@ class SpeechRecognition():
 
         plt.figure()
         plt.plot(ZCCs)
-        plt.title('Short-Time Zero Crossing Counts')
+        plt.title('Zero Crossing Rate')
         plt.ylabel('ZCC')
         plt.xlabel('FRAME')
         plt.autoscale(tight='both')
@@ -195,7 +201,7 @@ class SpeechRecognition():
         self.log.insert(END, '\nMFCC:\nNumber of windows = {}\n'.format(mfcc_features.shape[0]))
         self.log.insert(END, 'Length of each feature = {}\n'.format(mfcc_features.shape[1]))
 
-        plt.figure()
+        # plt.figure()
         # Transform the matrix so that the time domain is horizontal
         mfcc_features = mfcc_features.T
         plt.matshow(mfcc_features)
@@ -203,7 +209,7 @@ class SpeechRecognition():
         plt.savefig(self.OUTPUT_MFCC_FIG)
         plt.show()
 
-        self.log.insert(END, "Done - results written to output directory.\n")
+        self.log.insert(END, "\nDone - results written to output directory.\n")
 
     def record_from_mic(self):
         """
@@ -215,6 +221,7 @@ class SpeechRecognition():
                         input=True, output=True,
                         frames_per_buffer=self.CHUNK_SIZE)
         sample_width = p.get_sample_size(self.FORMAT)
+        self.log.insert(END, '\nRecording from microphone with automatic endpointing...\n')
 
         num_silence = 0
         snd_started = False
@@ -240,6 +247,7 @@ class SpeechRecognition():
         stream.stop_stream()
         stream.close()
         p.terminate()
+        self.log.insert(END, 'Stopped recording.\n')
 
         signal = self.normalize(signal)
         signal = self.trim(signal)
@@ -314,6 +322,11 @@ class SpeechRecognition():
         wf.setframerate(self.FREQUENCY)
         wf.writeframes(signal)
         wf.close()
+        self.log.insert(END, 'Endpointed segment is written to output/speech-endpoint.wav')
+
+    def on_closing(self):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.root.destroy()
 
 
 if __name__ == '__main__':
