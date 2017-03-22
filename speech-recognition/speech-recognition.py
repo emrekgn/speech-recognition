@@ -54,9 +54,9 @@ class SpeechRecognition():
         right_frame = Frame(self.root)
         right_frame.pack(side=RIGHT)
 
-        Radiobutton(right_frame, text='Record from mic & analyze', variable=self.var, value=1).pack(side=TOP, anchor=W)
+        Radiobutton(right_frame, text='Record from mic & analyze', variable=self.var, value=1).pack(side=TOP, anchor=W, padx=10, pady=10)
         Radiobutton(right_frame, text='Select one of the existing audio files & analyze', variable=self.var,
-                    value=2).pack(side=TOP, anchor=W)
+                    value=2).pack(side=TOP, anchor=W, padx=10, pady=10)
 
         scrollbar = Scrollbar(right_frame)
         scrollbar.pack(side=RIGHT, fill=Y)
@@ -64,11 +64,12 @@ class SpeechRecognition():
         for index, name in enumerate(os.listdir(self.DATA_PATH)):
             if os.path.isfile(os.path.join(self.DATA_PATH, name)):
                 self.existing_audio_files.insert(index, name)
-                self.existing_audio_files.pack(side=TOP, fill=BOTH)
+
+        self.existing_audio_files.pack(side=TOP, fill=BOTH, padx=10, pady=10)
         scrollbar.config(command=self.existing_audio_files.yview)
 
         start_button = Button(right_frame, text='Start!', command=self.start)
-        start_button.pack(side=TOP)
+        start_button.pack(side=TOP, padx=10, pady=10)
 
         self.root.mainloop()
 
