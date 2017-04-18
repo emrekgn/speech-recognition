@@ -1,0 +1,16 @@
+
+this is the result using DTW without pruning
+
+when using 1 templates the accuracy is0.388888888889
+
+when using 2 templates the accuracy is0.6
+
+when using 3 templates the accuracy is0.585714285714
+
+when using 4 templates the accuracy is0.716666666667
+
+when using 5 templates the accuracy is0.66
+
+this is the result using DTW with pruning
+
+when using 5 templates the accuracy is0.78
