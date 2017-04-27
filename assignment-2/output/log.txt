@@ -1,0 +1,15 @@
+Reading endpointed audio file...
+Analyzing audio signal...
+Frequency ==> 8000 Hz
+Length of signal  ==> 34122 samples
+Signal  ==> [ 0.0276996   0.01940453  0.02888461 ...,  0.13494297  0.13494297
+  0.12546289]
+Samples/millisecond  ==> 8
+Samples/[%dms]frame  ==> % 20 160
+Number of frames     ==> 213
+DC               ==> 0.031818708390729956
+mean(newSignal)  ==> 1.665887663701073e-18
+MFCC:
+Number of windows = 426
+Length of each feature = 13
+Done - results written to output directory.
