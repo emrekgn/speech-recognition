@@ -2,8 +2,8 @@
 
 import speech_recognition as sr
 
-KEYWORDS = [("one", 1.15), ("two", 1.15), ("three", 0.75), ("four", 1.15), ("five", 1.15), ("six", 1.15), ("seven", 0.75),
-            ("eight", 1.15), ("nine", 1.15), ("zero", 1.15)]
+KEYWORDS = [("one", 1), ("two", 1), ("three", 0.75), ("four", 1), ("five", 1), ("six", 1), ("seven", 0.75),
+            ("eight", 1), ("nine", 1), ("zero", 1)]
 
 
 def main():
