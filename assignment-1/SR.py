@@ -3,7 +3,6 @@
 import record
 import time
 import math
-import mfcc
 import numpy
 import scipy.io.wavfile as wav
 
